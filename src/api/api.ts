@@ -26,8 +26,8 @@ const api = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: {
         "Accept":"application/json",
-        "Origin":"http://localhost:3000",
-        "Referer":"http://localhost:3000/"
+        "Origin":"https://LakshmiKalyani93.github.io",
+        "Referer":"https://LakshmiKalyani93.github.io/"
     },
     withCredentials: true,
     paramsSerializer: (params) => {
