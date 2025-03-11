@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/dog-match-app/static/css/main.ddc8ba3b.css",
-    "main.js": "/dog-match-app/static/js/main.b1e8f1c1.js",
+    "main.js": "/dog-match-app/static/js/main.11d21acf.js",
     "static/js/453.23fa0a46.chunk.js": "/dog-match-app/static/js/453.23fa0a46.chunk.js",
     "static/media/searchpagebg.jpg": "/dog-match-app/static/media/searchpagebg.0f95173647649fd14761.jpg",
     "static/media/background.jpg": "/dog-match-app/static/media/background.3264c0454376797b2edf.jpg",
     "index.html": "/dog-match-app/index.html",
     "main.ddc8ba3b.css.map": "/dog-match-app/static/css/main.ddc8ba3b.css.map",
-    "main.b1e8f1c1.js.map": "/dog-match-app/static/js/main.b1e8f1c1.js.map",
+    "main.11d21acf.js.map": "/dog-match-app/static/js/main.11d21acf.js.map",
     "453.23fa0a46.chunk.js.map": "/dog-match-app/static/js/453.23fa0a46.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ddc8ba3b.css",
-    "static/js/main.b1e8f1c1.js"
+    "static/js/main.11d21acf.js"
   ]
 }
