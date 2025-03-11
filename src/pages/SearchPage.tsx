@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { fetchDogs, generateMatch, fetchBreeds, fetchDogDetails, fetchLocations, searchLocations } from '../api/api'
+import { fetchDogs, generateMatch, fetchBreeds, fetchDogDetails, fetchLocations, searchLocations, logout, fetchDogsWithAppendUrl } from '../api/api'
 import { FetchDogsParams, FetchDogsResponse, Match, Dog } from "../api/types/Dogs";
-import { Location, Coordinates, SearchLocationsParams, SearchLocationResponse } from "../api/types/Location";
+import { Location, SearchLocationsParams } from "../api/types/Location";
 import DogCard from "../components/DogCard/DogCard";
 import './SearchPage.css'
+import Modal from "../components/Modal/Modal";
 
-const SearchPage: React.FC = () => {
+interface SearchPageProps {
+    onLogout: () => void
+}
+
+const SearchPage: React.FC<SearchPageProps> = ({ onLogout }) => {
     const [breeds, setBreeds] = useState<string[]>([])
     const [dogs, setDogs] = useState<Dog[]>([])
     const [total, setTotal] = useState(0)
@@ -28,7 +33,8 @@ const SearchPage: React.FC = () => {
     const [nextPage, setNextPage] = useState<string | null>(null)
     const [states, setStates] = useState<string[]>([])
     const [cities, setCities] = useState<string[]>([])
-
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+    const [selectedBreed, setSelectedBreed] = useState<string[]>([])
 
     useEffect(() => {
         const loadBreeds = async () => {
@@ -87,8 +93,7 @@ const SearchPage: React.FC = () => {
             setLoading(true)
             try {
                 const data: FetchDogsResponse = await fetchDogs(filters)
-                const dogDetails = await fetchDogDetails(data.resultIds)
-                console.log("dogDetails----", dogDetails)
+                const dogDetails = await fetchDogDetails(data?.resultIds)
                 setDogs(dogDetails)
                 setTotal(data.total)
                 setPrevPage(data.prev || null)
@@ -103,6 +108,54 @@ const SearchPage: React.FC = () => {
         }
         loadDogs()
     }, [filters])
+
+    const handleNextPage = async () => {
+        if (nextPage) {
+            // setFilters((prev) => ({
+            //     ...prev,
+            //     from: (prev?.from || 0) + (prev?.size || 25),
+            // }))
+            setLoading(true)
+            try {
+                const data: FetchDogsResponse = await fetchDogsWithAppendUrl(nextPage)
+                const dogDetails = await fetchDogDetails(data?.resultIds)
+                setDogs(dogDetails)
+                setTotal(data.total)
+                setPrevPage(data.prev || null)
+                setNextPage(data.next || null)
+                setError(null)
+            } catch (error) {
+                setError('Failed to fetch dogs. Please try again.')
+                console.log('Failed to fetch dogs: ', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+    }
+
+    const handlePreviousPage = async () => {
+        if (prevPage) {
+            // setFilters((prev) => ({
+            //     ...prev,
+            //     from: Math.max(0, (prev?.from || 0) - (prev?.size || 25)),
+            // }))
+            setLoading(true)
+            try {
+                const data: FetchDogsResponse = await fetchDogsWithAppendUrl(prevPage)
+                const dogDetails = await fetchDogDetails(data?.resultIds)
+                setDogs(dogDetails)
+                setTotal(data.total)
+                setPrevPage(data.prev || null)
+                setNextPage(data.next || null)
+                setError(null)
+            } catch (error) {
+                setError('Failed to fetch dogs. Please try again.')
+                console.log('Failed to fetch dogs: ', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+    }
 
     useEffect(() => {
         if (filters.zipCodes && filters.zipCodes.length > 0) {
@@ -128,6 +181,7 @@ const SearchPage: React.FC = () => {
         try {
             const matchResponse: Match = await generateMatch(favorites)
             setMatch(matchResponse.match)
+            setIsModalOpen(true)
             setError(null)
         } catch (error) {
             setError('Failed to generate dog match. Please try again')
@@ -135,23 +189,11 @@ const SearchPage: React.FC = () => {
         }
     }
 
-    const handleNextPage = () => {
-        if (nextPage) {
-            setFilters((prev) => ({
-                ...prev,
-                from: (prev?.from || 0) + (prev?.size || 25),
-            }))
-        }
+    const closeModal = () => {
+        setIsModalOpen(false)
     }
 
-    const handlePreviousPage = () => {
-        if (prevPage) {
-            setFilters((prev) => ({
-                ...prev,
-                from: Math.max(0, (prev?.from || 0) - (prev?.size || 25)),
-            }))
-        }
-    }
+
 
     const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setFilters((prev) => ({
@@ -160,41 +202,51 @@ const SearchPage: React.FC = () => {
         }))
     }
 
-    // const updateZipCodes = async (state: string, city: string) => {
-    //     try {
-    //         const params: SearchLocationsParams = {}
-    //         if (state) {
-    //             params.states = [state]
-    //         }
-    //         if (city) {
-    //             params.city = city
-    //         }
+    const updateZipCodes = async (state: string, city: string) => {
+        try {
+            const params: SearchLocationsParams = {}
+            if (state) {
+                params.states = [state]
+            }
+            if (city) {
+                params.city = city
+            }
 
-    //         const data = await searchLocations(params)
-    //         const zipCodes: string[] = Array.from(data.results.map((location) => location.zip_code))
-    //         setFilters((prev) => ({
-    //             ...prev,
-    //             zipCodes
-    //         }))
-    //     } catch (error) {
-    //         setError('Failed to update zipCodes. Please try again')
-    //         console.log('Error updating zipCodes', error)
-    //     }
-    // }
+            const data = await searchLocations(params)
+            const zipCodes: string[] = Array.from(data.results.map((location) => location.zip_code))
+            setFilters((prev) => ({
+                ...prev,
+                zipCodes
+            }))
+        } catch (error) {
+            setError('Failed to update zipCodes. Please try again')
+            console.log('Error updating zipCodes', error)
+        }
+    }
 
-    // const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //     const state = e.target.value
-    //     setSelectedState(state)
-    //     setSelectedCity('')
-    //     updateZipCodes(state, '')
-    // }
+    const handleLogout = async () => {
+        try {
+            await logout()
+            onLogout()
+        } catch (error) {
+            setError('Failed to logout. Please try again')
+            console.log('Error Logging Out', error)
+        }
+    }
 
-    // const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //     const city = e.target.value
-    //     setSelectedCity(city)
-    //     updateZipCodes(selectedState, city)
+    const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const state = e.target.value
+        setSelectedState(state)
+        setSelectedCity('')
+        updateZipCodes(state, '')
+    }
 
-    // }
+    const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const city = e.target.value
+        setSelectedCity(city)
+        updateZipCodes(selectedState, city)
+
+    }
 
     const handleFavorite = (dogId: string) => {
         setFavorites((prev) =>
@@ -202,18 +254,32 @@ const SearchPage: React.FC = () => {
         )
     }
 
+    const handleBreedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newBreed = Array.from(e.target.selectedOptions, (option) => option.value)
+        const resultBreedSet = selectedBreed.length ? Array.from(new Set([...selectedBreed, ...newBreed])) : newBreed
+        setSelectedBreed(resultBreedSet)
+        setSelectedState('')
+        setSelectedCity('')
+        setFilters({ ...filters, breed: resultBreedSet, zipCodes: [] })
+    }
+
+
+
     return (
         <div className="search-container">
-            <h1>Search Dogs</h1>
+
+            <button className="logout-button" onClick={handleLogout}>Logout</button>
+
+            <h1 className="text-view">Search Dogs</h1>
             {/* <div className="search-main-view"> */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <p> Total results: {total}</p>
+            <p className="text-view"> TOTAL RESULTS: {total}</p>
             <div className="filter-sort-row">
                 {/*Breed Filter*/}
                 <div >
-                    <label>Filter by Breed: </label>
-                    <select value={filters.breed?.join(',') || ''} onChange={(e) => setFilters({ ...filters, breed: e.target.value.split(',') })}>
-                        <option value="">All Breeds</option>
+                    <label className="text-view">FILTER BY BREED: </label>
+                    <select multiple value={selectedBreed} onChange={handleBreedChange}>
+                        {/* <option value="">ALL BREEDS</option> */}
                         {
                             breeds.map((breed) => (
                                 <option key={breed}>{breed}</option>
@@ -224,10 +290,10 @@ const SearchPage: React.FC = () => {
                 </div>
 
                 {/*Location State Filter*/}
-                {/* <div>
-                    <label>Filter by State</label>
+                <div>
+                    <label className="text-view">STATE</label>
                     <select value={selectedState} onChange={handleStateChange}>
-                        <option value="">All States</option>
+                        <option value="">ALL STATES</option>
                         {
                             states.map((state) => (
                                 <option key={state}>{state}</option>
@@ -236,14 +302,14 @@ const SearchPage: React.FC = () => {
 
                     </select>
 
-                </div> */}
+                </div>
 
                 {/*Location City Filter*/}
                 {/* {selectedState && */}
-                {/* <div>
-                    <label>Filter by City</label>
-                    <select value={selectedState} onChange={handleCityChange}>
-                        <option value="">All Citites</option>
+                <div>
+                    <label className="text-view">CITY</label>
+                    <select value={selectedCity} onChange={handleCityChange}>
+                        <option value="">ALL CITIES</option>
                         {
                             cities.map((city) => (
                                 <option key={city}>{city}</option>
@@ -251,11 +317,11 @@ const SearchPage: React.FC = () => {
                         }
 
                     </select>
-                </div> */}
+                </div>
                 {/* } */}
                 {/*Sorting*/}
                 <div>
-                    <label>Sort by:</label>
+                    <label className="text-view">SORT BY:</label>
                     <select value={filters.sort} onChange={handleSortChange}>
                         <option value="breed:asc">Breed( A-Z )</option>
                         <option value="breed:desc">Breed ( Z-A )</option>
@@ -263,34 +329,59 @@ const SearchPage: React.FC = () => {
                 </div>
 
             </div>
+
+            {selectedBreed?.length && <div className="select-breeds">
+                <strong>SELECTED BREEDS: </strong>
+                {selectedBreed.join(', ')}
+            </div>
+            }
+
             {/*Dogs List*/}
             {
-                loading ? (<p>Loading...</p>) : (
-                    <ul className="dog-grid">
-                        {
-                            dogs.map((dog) => (
-                                <li key={dog.id}>
-                                    <DogCard dog={dog} onFavorite={() => handleFavorite(dog.id)} isFavorite={favorites.includes(dog.id)} />
-                                </li>
-                            ))
-                        }
-                    </ul>
-                )
+                loading ? (<p className="text-view">Loading...</p>) :
+
+                    (
+                        total === 0 ? (<p className="select-breeds-no-dogs" > NO DOGS AVAILABLE FOR THE GIVEN SEARCH CRITERIA </p>) :
+
+                            (
+
+                                <ul className="dog-grid">
+                                    {
+                                        dogs.map((dog) => (
+                                            <li key={dog.id}>
+                                                <DogCard dog={dog} onFavorite={() => handleFavorite(dog.id)} isFavorite={favorites.includes(dog.id)} />
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                            )
+
+                    )
             }
 
             {/*Pagination*/}
-            <div className="pagination">
+
+            {total > 0 && <div className="pagination">
                 <button onClick={handlePreviousPage} disabled={!prevPage}> &larr; Previous Page </button>
                 <button onClick={handleNextPage} disabled={!nextPage}> Next Page &rarr;</button>
             </div>
+            }
 
 
             {/*Generate Match*/}
-            <div className="generate-match">
-                <button onClick={handleGenerateMatch}>Generate Match</button>
-            </div>
+            {total > 0 &&
+                <div className="generate-match">
+                    <button onClick={handleGenerateMatch}>Generate Match</button>
+                </div>
+            }
+
             {/*Display Match*/}
-            {match && <p> Your match is: {match}</p>}
+            <Modal isOpen={isModalOpen} onClose={closeModal}>
+                <h2>⭐⭐ Congratulations ⭐⭐</h2>
+                {match ? (<p className="text-view-black"> Your match is successful.</p>) : (
+                    <p style={{ color: 'red' }}>No Match found. Please try again.</p>
+                )}
+            </Modal>
             {/* </div> */}
         </div>)
 }
