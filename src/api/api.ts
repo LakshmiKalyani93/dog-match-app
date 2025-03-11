@@ -1,10 +1,38 @@
 import axios from "axios";
 import { FetchDogsParams, FetchDogsResponse, Match, Dog } from './types/Dogs'
-import { Location, Coordinates, SearchLocationsParams, SearchLocationResponse } from "./types/Location";
+import { Location, SearchLocationsParams, SearchLocationResponse } from "./types/Location";
+import qs from 'qs'
+import { urlToHttpOptions } from "url";
+
+const paramsSerializer = (params: any) => {
+
+    const querystring = Object.keys(params)
+        .filter((key) => {
+            const value = params[key]
+            return (value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0))
+        })
+        .map((key) => {
+            const value = params[key]
+            if (Array.isArray(value)) {
+                // return params[key].map((value: any) => `${key}[]=${value}`).join('&')
+                return `${key}\[\]=${params[key]}`
+            }
+            return `${key}=${params[key]}`
+        }).join('&')
+    return querystring
+}
 
 const api = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
-    withCredentials: true
+    headers: {
+        "Accept":"application/json",
+        "Origin":"http://localhost:3000",
+        "Referer":"http://localhost:3000/"
+    },
+    withCredentials: true,
+    paramsSerializer: (params) => {
+        return qs.stringify(params, { arrayFormat: 'indices' })
+    }
 })
 
 export const login = async (name: string, email: string): Promise<void> => {
@@ -12,6 +40,20 @@ export const login = async (name: string, email: string): Promise<void> => {
         const response = await api.post('/auth/login', { name, email });
         if (response?.status === 200) {
             console.log("Login successful")
+            return
+        }
+    } catch (error) {
+        console.error('Error placing login requests:', error)
+        throw error
+    }
+}
+
+
+export const logout = async (): Promise<void> => {
+    try {
+        const response = await api.post('/auth/logout', {});
+        if (response?.status === 200) {
+            console.log("Logout successful")
             return
         }
     } catch (error) {
@@ -74,11 +116,46 @@ export const fetchDogDetails = async (dogIds: string[]): Promise<Dog[]> => {
     }
 }
 
+const fixUrl = (url: string): string => {
+    try {
+        const parsedUrl = new URL(url, process.env.REACT_APP_API_BASE_URL)
+        const decodedSearchParams = new URLSearchParams(parsedUrl.search)
+        return `${process.env.REACT_APP_API_BASE_URL}/dogs/search?${decodedSearchParams.toString()}`
+    } catch (error) {
+        console.error("Invalid URL:", url);
+        return url;
+    }
+}
+
+export const fetchDogsWithAppendUrl = async (url: string): Promise<FetchDogsResponse> => {
+
+    try {
+        const fixedUrl: string = fixUrl(url)
+        const response = await api.get(fixedUrl)
+        if (response?.status === 200) {
+            return response?.data
+        }
+        throw new Error(`Unexpected error with status code: ${response?.status}`)
+
+    } catch (error) {
+        console.error('Error fetching dogs:', error)
+        throw error
+    }
+}
+
+
 export const fetchDogs = async (params: FetchDogsParams): Promise<FetchDogsResponse> => {
     try {
-        console.log("API Params: --------", params)
         const response = await api.get('/dogs/search', {
-            params
+            params: {
+                breed: params.breed,
+                zipCodes: params.zipCodes,
+                ageMin: params.ageMax,
+                ageMax: params.ageMax,
+                size: params?.size || 25,
+                from: params?.from || 0,
+                sort: params.sort,
+            }
         })
         if (response?.status === 200) {
             return response?.data
