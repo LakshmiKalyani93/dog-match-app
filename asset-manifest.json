@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/LakshmiKalyani93/dog-match-app/static/css/main.44e5a3d5.css",
+    "main.js": "/LakshmiKalyani93/dog-match-app/static/js/main.9d59e912.js",
+    "static/js/453.23fa0a46.chunk.js": "/LakshmiKalyani93/dog-match-app/static/js/453.23fa0a46.chunk.js",
+    "static/media/searchpagebg.jpg": "/LakshmiKalyani93/dog-match-app/static/media/searchpagebg.0f95173647649fd14761.jpg",
+    "static/media/background.jpg": "/LakshmiKalyani93/dog-match-app/static/media/background.3264c0454376797b2edf.jpg",
+    "index.html": "/LakshmiKalyani93/dog-match-app/index.html",
+    "main.44e5a3d5.css.map": "/LakshmiKalyani93/dog-match-app/static/css/main.44e5a3d5.css.map",
+    "main.9d59e912.js.map": "/LakshmiKalyani93/dog-match-app/static/js/main.9d59e912.js.map",
+    "453.23fa0a46.chunk.js.map": "/LakshmiKalyani93/dog-match-app/static/js/453.23fa0a46.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.44e5a3d5.css",
+    "static/js/main.9d59e912.js"
+  ]
+}
