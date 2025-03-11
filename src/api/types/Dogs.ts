@@ -8,8 +8,8 @@ export interface Dog {
 }
 
 export interface FetchDogsParams {
-    breed?: string[]
-    zipCodes?: string[]
+    breed?: string[] 
+    zipCodes?: string[] 
     ageMin?: number
     ageMax?: number
     size?: number | 25

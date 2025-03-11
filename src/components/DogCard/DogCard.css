@@ -6,6 +6,7 @@
     text-align: center;
     box-shadow: 1 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
+    background: rgba(255, 255, 255, 0.8);
 }
 
 .dog-card:hover {
@@ -22,21 +23,20 @@
     padding: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-}
-
-.dog-breed .dog-age .dog-location{
-    font-size: 14px;
-    color: #555;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    left:0;
 }
 
 .dog-name {
     font-size: 18px;
     font-weight: bold;
     margin: 0;
+}
+
+.dog-breed .dog-age {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
 }
 
 .favorite-button {
