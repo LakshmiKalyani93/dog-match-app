@@ -26,6 +26,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ onLogout }) => {
     const [match, setMatch] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    // eslint-disable-next-line
     const [locations, setLocations] = useState<Location[]>([])
     const [selectedState, setSelectedState] = useState<string>('')
     const [selectedCity, setSelectedCity] = useState<string>('')

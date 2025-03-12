@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login'
@@ -20,9 +19,6 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* <Route path='/login' element={
-          !isAuthenticated ? (<Login onLogin={() => setIsAutheticated(true)} />) : (<SearchPage />)
-        } /> */}
         <Route path='/login' element={
           isAuthenticated ? (<Navigate to='/search-dogs' />) : (<Login onLogin={handleLogin} />)
         } />

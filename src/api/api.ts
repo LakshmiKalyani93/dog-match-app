@@ -2,32 +2,12 @@ import axios from "axios";
 import { FetchDogsParams, FetchDogsResponse, Match, Dog } from './types/Dogs'
 import { Location, SearchLocationsParams, SearchLocationResponse } from "./types/Location";
 import qs from 'qs'
-import { urlToHttpOptions } from "url";
 
-const paramsSerializer = (params: any) => {
-
-    const querystring = Object.keys(params)
-        .filter((key) => {
-            const value = params[key]
-            return (value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0))
-        })
-        .map((key) => {
-            const value = params[key]
-            if (Array.isArray(value)) {
-                // return params[key].map((value: any) => `${key}[]=${value}`).join('&')
-                return `${key}\[\]=${params[key]}`
-            }
-            return `${key}=${params[key]}`
-        }).join('&')
-    return querystring
-}
 
 const api = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
     headers: {
-        "Accept":"application/json",
-        "Origin":"https://LakshmiKalyani93.github.io",
-        "Referer":"https://LakshmiKalyani93.github.io/"
+        "Accept": "application/json"
     },
     withCredentials: true,
     paramsSerializer: (params) => {
