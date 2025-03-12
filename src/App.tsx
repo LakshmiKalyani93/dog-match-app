@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Routes, Navigate, HashRouter } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login/Login'
 import SearchPage from './pages/SearchPage';
 
@@ -18,18 +18,17 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <HashRouter/>
-    <Router>
-      <Routes>
-        <Route path='/login' element={
-          isAuthenticated ? (<Navigate to='/search-dogs' />) : (<Login onLogin={handleLogin} />)
-        } />
-        <Route path='/search-dogs' element={
-          isAuthenticated ? (<SearchPage onLogout={handleLogout} />) : (<Navigate to='/login' />)
-        } />
-        <Route path='/' element={<Navigate to='/login' />} />
-      </Routes>
-    </Router>
+      <Router>
+        <Routes>
+          <Route path='/login' element={
+            isAuthenticated ? (<Navigate to='/search-dogs' />) : (<Login onLogin={handleLogin} />)
+          } />
+          <Route path='/search-dogs' element={
+            isAuthenticated ? (<SearchPage onLogout={handleLogout} />) : (<Navigate to='/login' />)
+          } />
+          <Route path='/' element={<Navigate to='/login' />} />
+        </Routes>
+      </Router>
     </div>
   )
 }
