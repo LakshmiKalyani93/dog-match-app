@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, HashRouter } from 'react-router-dom';
 import Login from './components/Login/Login'
 import SearchPage from './pages/SearchPage';
 
@@ -17,6 +17,8 @@ const App: React.FC = () => {
   }
 
   return (
+    <div>
+      <HashRouter/>
     <Router>
       <Routes>
         <Route path='/login' element={
@@ -28,6 +30,7 @@ const App: React.FC = () => {
         <Route path='/' element={<Navigate to='/login' />} />
       </Routes>
     </Router>
+    </div>
   )
 }
 
